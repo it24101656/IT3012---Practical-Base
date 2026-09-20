@@ -17,16 +17,6 @@ class VisualGridHuntGame:
             # Generate some default scattered walls for a larger grid
             self.walls = {(2, 2), (2, 3), (5, 5), (6, 5), (3, 7)}
 
-        # IT24101656 IS-Lab01: New trap collection attribute
-        self.toxic_traps = set()
-        # IT24101656 IS-Lab01: Randomly place traps avoiding start, walls, and food
-        while len(self.toxic_traps) < num_traps:
-            tx = random.randint(0, self.width - 1)
-            ty = random.randint(0, self.height - 1)
-            pos = (tx, ty)
-            if pos != (0, 0) and pos not in self.walls and pos not in self.food_positions:
-                self.toxic_traps.add(pos)
-
         # Dynamically generate random food positions avoiding walls and agent start
         self.food_positions = set()
         while len(self.food_positions) < num_food:
@@ -44,6 +34,16 @@ class VisualGridHuntGame:
             op_pos = [ox, oy]
             if tuple(op_pos) != (0, 0) and tuple(op_pos) not in self.walls and tuple(op_pos) not in self.food_positions:
                 self.opponents.append(op_pos)
+
+        # IT24101656 IS-Lab01: New trap collection attribute
+        self.toxic_traps = set()
+        # IT24101656 IS-Lab01: Randomly place traps avoiding start, walls, and food
+        while len(self.toxic_traps) < num_traps:
+            tx = random.randint(0, self.width - 1)
+            ty = random.randint(0, self.height - 1)
+            pos = (tx, ty)
+            if pos != (0, 0) and pos not in self.walls and pos not in self.food_positions:
+                self.toxic_traps.add(pos)
 
         self.score = 0
         self.steps = 0
@@ -86,7 +86,6 @@ class VisualGridHuntGame:
             self.score += 20
 
         # IT24101656 IS-Lab01: Penalty for the agent for stepping on a toxic trap
-        tuple_pos = tuple(self.agent_pos)
         if tuple_pos in self.toxic_traps:
             self.score -= 15
 
@@ -116,7 +115,7 @@ class GridGameGUI:
         self.root = root
         self.root.title("IT3012 - Scalable Multi-Agent Grid Hunt")
 
-        self.env = VisualGridHuntGame(width=width, height=height, num_food=num_food, num_opponents=num_opponents,
+        self.env = VisualGridHuntGame(width=width, height=height, num_food=num_food, num_opponents=num_opponents, num_traps=num_traps
                                       custom_walls=walls)
 
         # Dynamically calculate cell size so the total canvas fits nicely within a 600x600 window ceiling
@@ -163,7 +162,7 @@ class GridGameGUI:
             self.canvas.create_oval(x1, y1, x1 + self.cell_size * 0.5, y1 + self.cell_size * 0.5, fill="#f59e0b",
                                     outline="#d97706")
 
-        # IT24101656 IS-Lab01: Render toxic traps as purple squares on the canvas     
+        # IT24101656 IS-Lab01: Render toxic traps as purple triangles on the canvas     
         for tx, ty in self.env.toxic_traps:
             offset = self.cell_size * 0.25
             x1 = tx * self.cell_size + offset
