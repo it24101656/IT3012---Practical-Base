@@ -296,7 +296,8 @@ class GridGameGUI:
         #self.agent = ModelBasedAgent()
 
         # IT24101656 IS-Lab03: Use the SearchAgent - change the algo string to 'BFS', 'DFS', or 'UCS'
-        self.agent = SearchAgent(algo='BFS')
+        # IT24101656 IS-Lab04: Use SearchAgent with A* and Manhattan heuristic
+        self.agent = SearchAgent(algo='A*', heuristic='manhattan')
 
         # Dynamically calculate cell size so the total canvas fits nicely within a 600x600 window ceiling
         max_canvas_dim = 600
