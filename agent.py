@@ -1,4 +1,8 @@
 # agent.py
+import random
+from collections import deque
+import heapq
+
 class GreedyGridAgent:
     """A simple agent that tries to move around systematically to clear the grid."""
 
