@@ -1,7 +1,7 @@
 # visual_grid_game.py
 import random
 import tkinter as tk
-
+from agent import SearchAgent
 
 class VisualGridHuntGame:
     """A flexible Pacman-style grid environment with support for configurable opponents and larger scales."""
@@ -16,7 +16,7 @@ class VisualGridHuntGame:
         self.facing_before = self.facing
 
         # IT24101656 IS-Lab02: Start position chosen so the agent spawns under a U-shaped wall pocket
-        self.agent_pos = [6, 0]  # (x, y)
+        self.agent_pos = [0, 0]  # (x, y)
 
         if custom_walls is not None:
             self.walls = set(custom_walls)
@@ -141,6 +141,12 @@ class VisualGridHuntGame:
             'opponent_ahead': ahead_pos is not None and ahead_pos in opponent_positions_set,
 
             'collision': self.collision,
+
+            # IT24101656 IS-Lab03: Added the agent's map data
+            'agent_pos': tuple(self.agent_pos),
+            'grid_size': (self.width, self.height),
+            'walls': list(self.walls),
+            'all_food': list(self.food_positions),
         }
 
     # IT24101656 IS-Lab02: Updated execute_action to treat direction changes as pure turns (no movement)
@@ -151,10 +157,12 @@ class VisualGridHuntGame:
         self.facing_before = self.facing
         self.facing = action
 
-        # IT24101656 IS-Lab02: If the action changes direction, treat it as a pure turn — no movement
-        if action != self.facing_before:
+        # IT24101656 IS-Lab02: If the action changes direction, treat it as a pure turn - no movement
+        # IT24101656 IS-Lab03: Only treat turn-style actions as pure turns
+        if action.startswith('turn_'):
+            self.facing = action.replace('turn_', '')
             return
-
+        
         new_pos = list(self.agent_pos)
 
         if action == 'Up':
@@ -284,8 +292,11 @@ class GridGameGUI:
 
         # IT24101656 IS-Lab02: Uncomment this line to use the SimpleReflexAgent instead
         # self.agent = SimpleReflexAgent()
-        # IT24101656 IS-Lab02: Use the ModelBasedAgent by default
-        self.agent = ModelBasedAgent()
+        # IT24101656 IS-Lab02: Uncomment this line to use ModelBasedAgent 
+        #self.agent = ModelBasedAgent()
+
+        # IT24101656 IS-Lab03: Use the SearchAgent - change the algo string to 'BFS', 'DFS', or 'UCS'
+        self.agent = SearchAgent(algo='BFS')
 
         # Dynamically calculate cell size so the total canvas fits nicely within a 600x600 window ceiling
         max_canvas_dim = 600
@@ -382,6 +393,11 @@ if __name__ == "__main__":
     root = tk.Tk()
     # Try a larger grid size like 12x12 with 15 food and 3 opponents!
     # IT24101656 IS-Lab02: Custom walls to demonstrate the agent getting stuck in a U-shaped corner
-    walls = [(4,3), (7,6), (5,3), (7,3), (4,4), (7,4), (4,5), (7,5), (4,6), (5,6), (6,6)]
-    app = GridGameGUI(root, width=12, height=12, num_food=15, num_opponents=0)
+    # IT24101656 IS-Lab03: Maze walls with multiple paths and dead ends
+    walls = [
+        (2,8), (3,8), (4,8), (5,8), (6,8), (7,8),
+        (4,2), (4,3), (4,4),
+        (5,4), (6,4),
+    ]
+    app = GridGameGUI(root, width=12, height=12, num_food=15, num_opponents=0, , walls=walls)
     root.mainloop()
